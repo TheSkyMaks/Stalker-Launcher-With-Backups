@@ -1,0 +1,6 @@
+Source=G:\Anomaly\appdata\savedgames
+Launcher=G:\GAMMA\.Grok's Modpack Installer\G.A.M.M.A. Launcher.exe
+MaxBackups=5
+autoRestore=True
+BackupDelayBetweenIterations=300
+Iteration=1
