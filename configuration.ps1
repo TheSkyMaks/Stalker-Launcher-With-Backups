@@ -17,8 +17,8 @@ function Load-Config {
     } else {
         # Create default values
         $config = @{
-            "Source"                     = "D:\Anomaly\appdata\savedgames"
-            "Launcher"                   = "D:\GAMMA\.Grok's Modpack Installer\G.A.M.M.A. Launcher.exe"
+            "Source"                     = "G:\Steam\steamapps\common\Stalker Call of Pripyat\_appdata_\savedgames"
+            "Launcher"                   = "G:\Steam\steamapps\common\Stalker Call of Pripyat\Stalker-COP.exe"
             "MaxBackups"                 = "5"
             "autoRestore"                = "True"
             "minFilesForRestore"         = "5"

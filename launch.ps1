@@ -1,4 +1,4 @@
-﻿# launchWithoutGUI.ps1
+﻿# launch.ps1
 
 # Load scripts
 . .\configuration.ps1
@@ -49,7 +49,6 @@ while ($true) {
 
     # Wait before the next iteration
     Write-LogMessage "Waiting for $BackupDelayBetweenIterations seconds before next backup cycle."    
-    break
     Start-Sleep -Seconds $BackupDelayBetweenIterations
 }
 

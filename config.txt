@@ -1,6 +1,6 @@
-Source=G:\Anomaly\appdata\savedgames
+Source=G:\Steam\steamapps\common\Stalker Call of Pripyat\_appdata_\savedgames
 autoRestore=True
 Iteration=1
 MaxBackups=5
-Launcher=G:\GAMMA\.Grok's Modpack Installer\G.A.M.M.A. Launcher.exe
+Launcher=G:\Steam\steamapps\common\Stalker Call of Pripyat\Stalker-COP.exe
 BackupDelayBetweenIterations=300
