@@ -42,7 +42,7 @@ function Restore-Auto {
     $FilesInSource = Get-ChildItem -Path $Source -File
     
     Write-LogMessage "Found $($FilesInSource.Count) in $Source."
-    if ($FilesInSource.Count -ge $minFilesForRestore) {
+    if ($FilesInSource.Count -eq 0) {
         Write-LogMessage "No need for auto-restore. Files are sufficient in $Source."
         return
     }

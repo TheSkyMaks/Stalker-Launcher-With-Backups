@@ -67,7 +67,9 @@ $BackupDelayBetweenIterations = [int]$config["BackupDelayBetweenIterations"]
 # Paths for backups, logs, and restores
 $BackupRoot = Join-Path -Path $Source -ChildPath "backups"
 $RestoreRoot = Join-Path -Path $Source -ChildPath "restored"
-$LogRoot = Join-Path -Path $Source -ChildPath "logs"
 
 # Folders to exclude during operations
-$ExcludedFolders = @("backups", "restored", "logs")
+$ExcludedFolders = @("backups", "restored")
+
+# Ensure the necessary folders exist
+$folders = @($BackupRoot, $RestoreRoot)

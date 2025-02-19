@@ -6,9 +6,6 @@
 . .\restore.ps1
 . .\logger.ps1
 
-# Ensure the necessary folders exist
-$folders = @($BackupRoot, $RestoreRoot, $LogRoot)
-
 foreach ($folder in $folders) {
     if (-not (Test-Path -Path $folder)) {
         Write-LogMessage "Folder '$folder' does not exist. Creating it now."
@@ -17,13 +14,6 @@ foreach ($folder in $folders) {
     else {
         Write-LogMessage "Folder '$folder' already exists."
     }
-}
-    
-# Check if the log file exists, if not, create it
-$logFilePath = Join-Path $LogRoot "log.txt"
-if (-not (Test-Path $logFilePath)) {
-    Write-Host "Log file not found. Creating $logFilePath"
-    New-Item -Path $logFilePath -ItemType File
 }
 
 # Launch the game launcher

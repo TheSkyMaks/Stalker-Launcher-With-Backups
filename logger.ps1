@@ -3,6 +3,9 @@
 # Load scripts
 . .\configuration.ps1
 
+# Path to the logs file
+$logsFilePath = ".\logs.txt"
+
 # Logging function
 function Write-LogMessage {
     param (
@@ -17,8 +20,6 @@ function Write-LogMessage {
     # Output log entry to the console
     Write-Output $logEntry
 
-    $logFilePath = Join-Path $LogRoot "log.txt"
-
     # Append the log entry to the file
-    Add-Content -Path $logFilePath -Value $logEntry
+    Add-Content -Path $logsFilePath -Value $logEntry
 }
