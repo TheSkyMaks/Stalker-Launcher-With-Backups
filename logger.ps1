@@ -1,7 +1,7 @@
 ﻿# logger.ps1
 
 # Load scripts
-. .\configuration.ps1  # Load configuration settings
+. .\configuration.ps1
 
 # Logging function
 function Write-LogMessage {
@@ -16,13 +16,8 @@ function Write-LogMessage {
     
     # Output log entry to the console
     Write-Output $logEntry
-    
-    # Check if the log file exists, if not, create it
+
     $logFilePath = Join-Path $LogRoot "log.txt"
-    if (-not (Test-Path $logFilePath)) {
-        Write-Host "Log file not found. Creating 'log.txt'..."
-        New-Item -Path $logFilePath -ItemType File
-    }
 
     # Append the log entry to the file
     Add-Content -Path $logFilePath -Value $logEntry

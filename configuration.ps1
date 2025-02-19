@@ -1,8 +1,5 @@
 ﻿# configuration.ps1
 
-# Load scripts
-. .\logger.ps1  # Load configuration settings
-
 # Path to the configuration file
 $configFilePath = ".\config.txt"
 
@@ -18,7 +15,6 @@ function Load-Config {
             }
         }
     } else {
-        Write-LogMessage "Configuration file not found. Creating a new one with default settings."
         # Create default values
         $config = @{
             "Source"                     = "D:\Anomaly\appdata\savedgames"
@@ -74,4 +70,4 @@ $RestoreRoot = Join-Path -Path $Source -ChildPath "restored"
 $LogRoot = Join-Path -Path $Source -ChildPath "logs"
 
 # Folders to exclude during operations
-$ExcludedFolders = @($BackupRoot, $RestoreRoot, $LogRoot)
+$ExcludedFolders = @("backups", "restored", "logs")

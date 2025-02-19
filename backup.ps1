@@ -3,39 +3,30 @@
 # Load scripts
 . .\configuration.ps1
 . .\logger.ps1
+. .\fileManager.ps1  # Load file manager functions
 
-# New backup function
 function New-Backup {
-    # Log message for starting the backup creation
+    $sourceItems = Get-ChildItem -Path $Source -File
+    if ($sourceItems.Count -eq 0) {
+        Write-LogMessage "No need for backup. 0 Files in $Source."
+        return
+    }
+
     Write-LogMessage "Creating backup for iteration $Iteration"
 
-    # Calculate the backup number and path
-    $BackupNumber = $Iteration % $MaxBackups
+    $BackupNumber = ($Iteration - 1) % $MaxBackups + 1
     $NewBackup = "$BackupRoot\backup$BackupNumber"
 
     # Remove old backup if it exists
     if (Test-Path $NewBackup) {
+        Write-LogMessage "Old backup found, removing it."
         Remove-Item -Recurse -Force $NewBackup
     }
 
-    # Create new backup directory
+    Write-LogMessage "Creating new backup directory: $NewBackup"
     New-Item -ItemType Directory -Path $NewBackup -Force | Out-Null
 
-    # Copy the source folders excluding the specified ones to the new backup
-    Get-ChildItem -Path $Source | Where-Object { $_.PSIsContainer -and $ExcludedFolders -notcontains $_.Name } | ForEach-Object {
-        $SourceFolder = $_.FullName
-        $DestFolder = Join-Path -Path $NewBackup -ChildPath $_.Name
-        
-        # Copy items using Copy-Item
-        Write-LogMessage "Copying $SourceFolder to $DestFolder"
-        Copy-Item -Path $SourceFolder -Destination $DestFolder -Recurse -Force
-    }
+    Copy-Files -SourceFolder $Source -DestinationFolder $NewBackup
 
-    # Log message indicating the backup is complete
     Write-LogMessage "Backup №$BackupNumber completed successfully."
-
-    # Update iteration in the configuration
-    $Iteration++
-    $config["Iteration"] = $Iteration.ToString()
-    Save-Config $config
 }

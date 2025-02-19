@@ -6,6 +6,26 @@
 . .\backup.ps1        # Load backup functions
 . .\restore.ps1       # Load restore functions
 
+# Ensure the necessary folders exist
+$folders = @($BackupRoot, $RestoreRoot, $LogRoot)
+
+foreach ($folder in $folders) {
+    if (-not (Test-Path -Path $folder)) {
+        Write-LogMessage "Folder '$folder' does not exist. Creating it now."
+        New-Item -ItemType Directory -Path $folder -Force | Out-Null
+    }
+    else {
+        Write-LogMessage "Folder '$folder' already exists."
+    }
+}
+    
+# Check if the log file exists, if not, create it
+$logFilePath = Join-Path $LogRoot "log.txt"
+if (-not (Test-Path $logFilePath)) {
+    Write-Host "Log file not found. Creating 'log.txt'..."
+    New-Item -Path $logFilePath -ItemType File
+}
+
 # Function to check if a library exists at a specified path
 function Test-IfLibraryExists {
     param (
@@ -19,7 +39,7 @@ function Test-IfLibraryExists {
 # Function to install a library if it is not found
 function Install-LibraryIfNeeded {
     param (
-        [string]$libraryName,  # The name of the library to check/install
+        [string]$libraryName, # The name of the library to check/install
         [string]$libraryPath   # The path where the library should be located
     )
 
@@ -35,7 +55,8 @@ function Install-LibraryIfNeeded {
             Write-Host "Failed to install library '$libraryName'. Please check your settings."
             exit
         }
-    } else {
+    }
+    else {
         Write-Host "Library '$libraryName' is already installed."
     }
 }
@@ -89,42 +110,42 @@ function Update-Status {
 
 # Define button click event for backup
 $form.backupButton.Add_Click({
-    Update-Status "Starting Backup..."
-    try {
-        # Call the New-Backup function from backup.ps1
-        New-Backup
-        Update-Status "Backup Complete"
-    }
-    catch {
-        # If backup fails, update status with error message
-        Update-Status "Backup failed: $_" -Level "ERROR"
-    }
-})
+        Update-Status "Starting Backup..."
+        try {
+            # Call the New-Backup function from backup.ps1
+            New-Backup
+            Update-Status "Backup Complete"
+        }
+        catch {
+            # If backup fails, update status with error message
+            Update-Status "Backup failed: $_" -Level "ERROR"
+        }
+    })
 
 # Define button click event for restore
 $form.restoreButton.Add_Click({
-    Update-Status "Restoring..."
-    try {
-        # Call the Restore-Backup function from restore.ps1
-        Restore-Backup
-        Update-Status "Restore Complete"
-    }
-    catch {
-        # If restore fails, update status with error message
-        Update-Status "Restore failed: $_" -Level "ERROR"
-    }
-})
+        Update-Status "Restoring..."
+        try {
+            # Call the Restore-Backup function from restore.ps1
+            Restore-Backup
+            Update-Status "Restore Complete"
+        }
+        catch {
+            # If restore fails, update status with error message
+            Update-Status "Restore failed: $_" -Level "ERROR"
+        }
+    })
 
 # Define button click event for launching the game
 $form.playGameButton.Add_Click({
-    Update-Status "Launching game without GUI..."
-    try {
-        # Call launchWithoutGUI.ps1 to run the game without GUI
-        .\launchWithoutGUI.ps1
-        Update-Status "Game Launched"
-    }
-    catch {
-        # If game launch fails, update status with error message
-        Update-Status "Error launching game: $_" -Level "ERROR"
-    }
-})
+        Update-Status "Launching game without GUI..."
+        try {
+            # Call launchWithoutGUI.ps1 to run the game without GUI
+            .\launchWithoutGUI.ps1
+            Update-Status "Game Launched"
+        }
+        catch {
+            # If game launch fails, update status with error message
+            Update-Status "Error launching game: $_" -Level "ERROR"
+        }
+    })
