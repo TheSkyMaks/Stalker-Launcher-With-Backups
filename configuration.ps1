@@ -1,9 +1,12 @@
 ﻿# configuration.ps1
 
-# Шлях до файлу конфігурації
+# Load scripts
+. .\logger.ps1  # Load configuration settings
+
+# Path to the configuration file
 $configFilePath = ".\config.txt"
 
-# Функція для завантаження конфігурації з файлу
+# Function to load the configuration from the file
 function Load-Config {
     $config = @{}
     if (Test-Path $configFilePath) {
@@ -15,8 +18,8 @@ function Load-Config {
             }
         }
     } else {
-        Write-Host "Файл конфігурації не знайдено. Створюємо новий із стандартними параметрами."
-        # Створюємо дефолтні значення
+        Write-LogMessage "Configuration file not found. Creating a new one with default settings."
+        # Create default values
         $config = @{
             "Source"                     = "D:\Anomaly\appdata\savedgames"
             "Launcher"                   = "D:\GAMMA\.Grok's Modpack Installer\G.A.M.M.A. Launcher.exe"
@@ -31,31 +34,33 @@ function Load-Config {
     return $config
 }
 
-# Функція для збереження конфігурації у файл
+# Function to save the configuration to the file
 function Save-Config {
     param ($config)
     $configContent = $config.Keys | ForEach-Object { "$_=$($config[$_])" }
     Set-Content -Path $configFilePath -Value $configContent
 }
 
-# Функція для зчитування ітерації
+# Function to load the iteration
 function Load-Iteration {
     param ($config)
-    return if ($config.ContainsKey("Iteration")) { [int]$config["Iteration"] } else { 1 }
+    if ($config.ContainsKey("Iteration")) { 
+        return [int]$config["Iteration"]
+    }    
 }
 
-# Функція для оновлення ітерації в конфігу
+# Function to update the iteration in the config
 function Save-Iteration {
     param ([int]$iteration, [hashtable]$config)
     $config["Iteration"] = $iteration.ToString()
     Save-Config $config
 }
 
-# Завантаження конфігурації
+# Load configuration
 $config = Load-Config
 $Iteration = Load-Iteration -config $config
 
-# Змінні конфігурації
+# Configuration variables
 $Source = $config["Source"]
 $Launcher = $config["Launcher"]
 $MaxBackups = [int]$config["MaxBackups"]
@@ -63,10 +68,10 @@ $autoRestore = [bool]($config["autoRestore"] -eq "True")
 $minFilesForRestore = [int]$config["minFilesForRestore"]
 $BackupDelayBetweenIterations = [int]$config["BackupDelayBetweenIterations"]
 
-# Шляхи для бекапів, логів та відновлень
+# Paths for backups, logs, and restores
 $BackupRoot = Join-Path -Path $Source -ChildPath "backups"
 $RestoreRoot = Join-Path -Path $Source -ChildPath "restored"
 $LogRoot = Join-Path -Path $Source -ChildPath "logs"
 
-# Папки для виключення під час бекапу
-$ExcludedFolders = @("backups", "logs", "restored")
+# Folders to exclude during operations
+$ExcludedFolders = @($BackupRoot, $RestoreRoot, $LogRoot)

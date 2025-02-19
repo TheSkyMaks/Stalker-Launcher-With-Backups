@@ -1,9 +1,50 @@
-﻿# Завантажуємо конфігурацію
-. .\configuration.ps1
-. .\backupFunctions.ps1
-. .\restoreFunctions.ps1
+﻿# launch.ps1
 
-# Створюємо Windows Form
+# Load scripts
+. .\configuration.ps1  # Load configuration settings
+. .\logger.ps1        # Load logging functions
+. .\backup.ps1        # Load backup functions
+. .\restore.ps1       # Load restore functions
+
+# Function to check if a library exists at a specified path
+function Test-IfLibraryExists {
+    param (
+        [string]$assemblyPath  # The path where the library should be located
+    )
+    
+    # Returns true if the library exists at the given path
+    return Test-Path $assemblyPath
+}
+
+# Function to install a library if it is not found
+function Install-LibraryIfNeeded {
+    param (
+        [string]$libraryName,  # The name of the library to check/install
+        [string]$libraryPath   # The path where the library should be located
+    )
+
+    # If the library doesn't exist, attempt to install it
+    if (-not (Test-IfLibraryExists $libraryPath)) {
+        Write-Host "Library '$libraryName' not found. Installing..."
+
+        # Example of how you might install the library (adjust as needed)
+        Install-Package -Name $libraryName -Source 'nuget.org' -Force
+
+        # Verify if the library was successfully installed
+        if (-not (Test-IfLibraryExists $libraryPath)) {
+            Write-Host "Failed to install library '$libraryName'. Please check your settings."
+            exit
+        }
+    } else {
+        Write-Host "Library '$libraryName' is already installed."
+    }
+}
+
+# Install or verify the required System.Windows.Forms library
+$windowsFormsPath = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\System.Windows.Forms.dll"
+Install-LibraryIfNeeded -libraryName "System.Windows.Forms" -libraryPath $windowsFormsPath
+
+# Add types for C# code defining the GUI components
 Add-Type -TypeDefinition @"
 using System;
 using System.Windows.Forms;
@@ -14,66 +55,76 @@ public class MyForm : Form
     public Button restoreButton;
     public Button playGameButton;
     public Label statusLabel;
+    public TextBox consoleBox;
 
     public MyForm()
     {
-        this.Text = 'GAMMA Launcher with Backup';
-        this.Size = new System.Drawing.Size(400, 300);
-
-        // Створюємо кнопки
         backupButton = new Button();
-        backupButton.Text = 'Backup';
-        backupButton.Location = new System.Drawing.Point(30, 50);
-        backupButton.Size = new System.Drawing.Size(120, 30);
-        backupButton.Click += new EventHandler(BackupButton_Click);
-        
         restoreButton = new Button();
-        restoreButton.Text = 'Restore';
-        restoreButton.Location = new System.Drawing.Point(30, 100);
-        restoreButton.Size = new System.Drawing.Size(120, 30);
-        restoreButton.Click += new EventHandler(RestoreButton_Click);
-        
         playGameButton = new Button();
-        playGameButton.Text = 'Play GAMMA';
-        playGameButton.Location = new System.Drawing.Point(30, 150);
-        playGameButton.Size = new System.Drawing.Size(120, 30);
-        playGameButton.Click += new EventHandler(PlayGameButton_Click);
-        
         statusLabel = new Label();
-        statusLabel.Text = 'Ready';
-        statusLabel.Location = new System.Drawing.Point(30, 200);
-        statusLabel.Size = new System.Drawing.Size(300, 30);
+        consoleBox = new TextBox();
 
-        // Додаємо елементи на форму
-        this.Controls.Add(backupButton);
-        this.Controls.Add(restoreButton);
-        this.Controls.Add(playGameButton);
-        this.Controls.Add(statusLabel);
-    }
-
-    private void BackupButton_Click(object sender, EventArgs e)
-    {
-        statusLabel.Text = 'Starting Backup...';
-        Create-Backup -Iteration $Iteration -MaxBackups $MaxBackups -Source $Source -BackupRoot $BackupRoot -ExcludedFolders $ExcludedFolders
-        statusLabel.Text = 'Backup Completed';
-    }
-
-    private void RestoreButton_Click(object sender, EventArgs e)
-    {
-        statusLabel.Text = 'Starting Restore...';
-        Restore-Backup -Iteration $Iteration -Source $Source -BackupRoot $BackupRoot -RestoreRoot $RestoreRoot
-        statusLabel.Text = 'Restore Completed';
-    }
-
-    private void PlayGameButton_Click(object sender, EventArgs e)
-    {
-        statusLabel.Text = 'Launching GAMMA...';
-        Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File .\main.ps1"
-        statusLabel.Text = 'Game Started';
+        // Add logic for GUI components (buttons, labels, etc.)
     }
 }
-"@
+"@ -Language CSharp -ReferenceAssemblies $windowsFormsPath
 
-# Створюємо інтерфейс
+# Create the form instance
 $form = New-Object MyForm
-$form.ShowDialog()
+
+# Function to update the status on the form and log to console
+function Update-Status {
+    param (
+        [string]$message  # Message to display and log
+    )
+    
+    # Update status label on the form
+    $form.statusLabel.Text = $message
+    $form.Refresh()
+    
+    # Log message to console (optional)
+    $form.LogToConsole($message)
+}
+
+# Define button click event for backup
+$form.backupButton.Add_Click({
+    Update-Status "Starting Backup..."
+    try {
+        # Call the New-Backup function from backup.ps1
+        New-Backup
+        Update-Status "Backup Complete"
+    }
+    catch {
+        # If backup fails, update status with error message
+        Update-Status "Backup failed: $_" -Level "ERROR"
+    }
+})
+
+# Define button click event for restore
+$form.restoreButton.Add_Click({
+    Update-Status "Restoring..."
+    try {
+        # Call the Restore-Backup function from restore.ps1
+        Restore-Backup
+        Update-Status "Restore Complete"
+    }
+    catch {
+        # If restore fails, update status with error message
+        Update-Status "Restore failed: $_" -Level "ERROR"
+    }
+})
+
+# Define button click event for launching the game
+$form.playGameButton.Add_Click({
+    Update-Status "Launching game without GUI..."
+    try {
+        # Call launchWithoutGUI.ps1 to run the game without GUI
+        .\launchWithoutGUI.ps1
+        Update-Status "Game Launched"
+    }
+    catch {
+        # If game launch fails, update status with error message
+        Update-Status "Error launching game: $_" -Level "ERROR"
+    }
+})
