@@ -7,8 +7,9 @@
 
 function New-Backup {
     $sourceItems = Get-ChildItem -Path $Source -File
-    if ($sourceItems.Count -gt 0) {
-        Write-LogMessage "No need for backup. 0 Files in $Source."
+    $sourceItemsCount = $sourceItems.Count
+    if ($sourceItemsCount -eq 0) {
+        Write-LogMessage "No need for backup. $sourceItemsCount Files in $Source."
         return
     }
 

@@ -6,35 +6,44 @@
 
 # Function to perform the restore from backup
 function Restore-Backup {
-    # Calculate the backup number for restoration
-    $BackupNumber = ($Iteration + 3) % $MaxBackups + 1
-    $BackupFolder = "$BackupRoot\backup$BackupNumber"
+    # Get a list of all directories in BackupRoot, sorted by last modification time (newest first)
+    $BackupFolders = Get-ChildItem -Path $BackupRoot -Directory | Sort-Object LastWriteTime -Descending
 
-    # Create a restore path with timestamp
+    # Check if there are any backups
+    if ($BackupFolders.Count -eq 0) {
+        Write-LogMessage "No backups found in $BackupRoot. Restore aborted." -Level "WARNING"
+        return
+    }
+
+    # Select the most recent backup folder
+    $LatestBackup = $BackupFolders[0].FullName
+    Write-LogMessage "Latest backup folder selected: $LatestBackup"
+
+    # Create a restore folder with a timestamp
     $timestampRestore = Get-Date -Format "yyyyMMdd_HHmmss"
     $RestorePath = "$RestoreRoot\restore_$timestampRestore"
     Write-LogMessage "Creating restore folder at: $RestorePath"
     New-Item -ItemType Directory -Path $RestorePath -Force | Out-Null
 
-    # Create old and new folders during the restoration process
+    # Create old and new folders for restoration
     $OldFolder = "$RestorePath\old"
     $NewFolder = "$RestorePath\new"
     Write-LogMessage "Creating old and new folders for restore."
     New-Item -ItemType Directory -Path $OldFolder -Force | Out-Null
     New-Item -ItemType Directory -Path $NewFolder -Force | Out-Null
-    
+
     # Move current files to the old folder
     Copy-Files -SourceFolder $Source -DestinationFolder $OldFolder
 
     # Move backup files to the new folder
-    Copy-Files -SourceFolder $BackupFolder -DestinationFolder $NewFolder
-    
+    Copy-Files -SourceFolder $LatestBackup -DestinationFolder $NewFolder
+
     # Move new files to the source folder
     Copy-Files -SourceFolder $NewFolder -DestinationFolder $Source
 
-    # Log message indicating the completion of the restore process
-    Write-LogMessage "Restore completed from backup$BackupNumber."
+    Write-LogMessage "Restore completed from $LatestBackup."
 }
+
 
 # Function for Auto-Restore
 function Restore-Auto {
@@ -42,7 +51,7 @@ function Restore-Auto {
     $FilesInSource = Get-ChildItem -Path $Source -File
     
     Write-LogMessage "Found $($FilesInSource.Count) in $Source."
-    if ($FilesInSource.Count -eq 0) {
+    if ($FilesInSource.Count -gt 0) {
         Write-LogMessage "No need for auto-restore. Files are sufficient in $Source."
         return
     }
