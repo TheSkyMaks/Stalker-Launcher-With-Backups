@@ -17,13 +17,14 @@ function Load-Config {
     } else {
         # Create default values
         $config = @{
-            "Source"                     = "G:\Steam\steamapps\common\Stalker Call of Pripyat\_appdata_\savedgames"
-            "Launcher"                   = "G:\Steam\steamapps\common\Stalker Call of Pripyat\Stalker-COP.exe"
-            "MaxBackups"                 = "5"
-            "autoRestore"                = "True"
-            "minFilesForRestore"         = "5"
+            "Source"                       = "G:\Steam\steamapps\common\Stalker Call of Pripyat\_appdata_\savedgames"
+            "Launcher"                     = "G:\Steam\steamapps\common\Stalker Call of Pripyat\Stalker-COP.exe"
+            "MaxBackups"                   = "5"
+            "autoRestore"                  = "True"
+            "minFilesForRestore"           = "5"
             "BackupDelayBetweenIterations" = "300"
-            "Iteration"                  = "1"
+            "Iteration"                    = "1"
+            "fullLogs"                     = "True"
         }
         Save-Config $config
     }
@@ -63,6 +64,7 @@ $MaxBackups = [int]$config["MaxBackups"]
 $autoRestore = [bool]($config["autoRestore"] -eq "True")
 $minFilesForRestore = [int]$config["minFilesForRestore"]
 $BackupDelayBetweenIterations = [int]$config["BackupDelayBetweenIterations"]
+$fullLogs = [bool]($config["fullLogs"] -eq "True")
 
 # Paths for backups, logs, and restores
 $BackupRoot = Join-Path -Path $Source -ChildPath "backups"

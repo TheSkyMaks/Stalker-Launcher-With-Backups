@@ -4,3 +4,4 @@ Iteration=1
 MaxBackups=5
 Launcher=G:\Steam\steamapps\common\Stalker Call of Pripyat\Stalker-COP.exe
 BackupDelayBetweenIterations=300
+fullLogs=False

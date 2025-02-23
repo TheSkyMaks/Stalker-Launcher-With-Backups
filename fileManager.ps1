@@ -22,7 +22,9 @@ function Copy-Files {
         Get-ChildItem -Path $SourceFolder -File | ForEach-Object {
             $SourceFile = $_.FullName
             $DestinationFile = Join-Path -Path $DestinationFolder -ChildPath $_.Name
-            Write-LogMessage "Copying file: $SourceFile to $DestinationFile"
+            if ($fullLogs) {
+                Write-LogMessage "Copying file: $SourceFile to $DestinationFile"
+            }
             Copy-Item -Path $SourceFile -Destination $DestinationFile -Force
         }
     } 
